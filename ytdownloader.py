@@ -16,7 +16,7 @@ class YouTubeDownloaderGUI:
         self.root.geometry("800x600")
         self.root.minsize(800, 600)
         
-        # Variables
+       
         self.url_var = tk.StringVar()
         self.output_dir_var = tk.StringVar(value=os.path.expanduser("~/Downloads"))
         self.download_progress = tk.DoubleVar(value=0.0)
@@ -24,72 +24,72 @@ class YouTubeDownloaderGUI:
         self.video_info = None
         self.thumbnail_image = None
         
-        # Create the main frame
+      
         self.main_frame = ttk.Frame(root, padding=20)
         self.main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Configure a custom style for the progress bar (green fill)
+        
         style = ttk.Style()
         style.theme_use('default')
         style.configure("green.Horizontal.TProgressbar", troughcolor='white', background='green')
         
-        # URL input
+        
         ttk.Label(self.main_frame, text="YouTube URL:", font=("Helvetica", 12)).grid(row=0, column=0, sticky=tk.W, pady=(0, 5))
         url_entry = ttk.Entry(self.main_frame, textvariable=self.url_var, width=40, font=("Helvetica", 12))
         url_entry.grid(row=0, column=1, sticky=tk.EW, padx=(5, 5), pady=(0, 5))
         ttk.Button(self.main_frame, text="Load Info", command=self.load_video_info).grid(row=0, column=2, padx=5, pady=(0, 5))
         
-        # Thumbnail and info frame
+        
         self.info_frame = ttk.LabelFrame(self.main_frame, text="Video Information", padding=10)
         self.info_frame.grid(row=1, column=0, columnspan=3, sticky=tk.NSEW, pady=10)
         
-        # Thumbnail label
+        
         self.thumbnail_label = ttk.Label(self.info_frame, text="Enter URL and click Load Info")
         self.thumbnail_label.grid(row=0, column=0, padx=10, pady=10)
         
-        # Video info
+        
         self.info_text = tk.Text(self.info_frame, height=10, width=40, wrap=tk.WORD, font=("Helvetica", 10))
         self.info_text.grid(row=0, column=1, padx=10, pady=10, sticky=tk.NSEW)
         self.info_text.config(state=tk.DISABLED)
         
-        # Options frame
+        
         options_frame = ttk.LabelFrame(self.main_frame, text="Download Options", padding=10)
         options_frame.grid(row=2, column=0, columnspan=3, sticky=tk.EW, pady=10)
         
-        # Format selection
+       
         ttk.Label(options_frame, text="Format:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self.format_combobox = ttk.Combobox(options_frame, width=40, state="readonly")
         self.format_combobox.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=5)
         
-        # Audio only checkbox
+        
         self.audio_only_var = tk.BooleanVar(value=False)
         ttk.Checkbutton(options_frame, text="Audio Only (MP3)", variable=self.audio_only_var, 
                         command=self.toggle_audio_only).grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         
-        # Output directory
+        
         ttk.Label(options_frame, text="Save to:").grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
         ttk.Entry(options_frame, textvariable=self.output_dir_var, width=40).grid(row=2, column=1, sticky=tk.EW, padx=5, pady=5)
         ttk.Button(options_frame, text="Browse", command=self.browse_output_dir).grid(row=2, column=2, padx=5, pady=5)
         
-        # Download button
+        
         self.download_button = ttk.Button(self.main_frame, text="Download", command=self.download_video, state=tk.DISABLED)
         self.download_button.grid(row=3, column=0, columnspan=3, pady=10)
         
-        # Progress bar with custom green style
+        
         self.progress_bar = ttk.Progressbar(self.main_frame, variable=self.download_progress, maximum=100, style="green.Horizontal.TProgressbar")
         self.progress_bar.grid(row=4, column=0, columnspan=3, sticky=tk.EW, pady=5)
         
-        # Status label
+       
         status_label = ttk.Label(self.main_frame, textvariable=self.status_text, font=("Helvetica", 10))
         status_label.grid(row=5, column=0, columnspan=3, sticky=tk.W, pady=5)
         
-        # Configure grid weights
+       
         self.main_frame.columnconfigure(1, weight=1)
         self.main_frame.rowconfigure(1, weight=1)
         self.info_frame.columnconfigure(1, weight=1)
         self.info_frame.rowconfigure(0, weight=1)
         
-        # Bind enter key to load video info
+        
         url_entry.bind("<Return>", lambda event: self.load_video_info())
         
     def extract_video_id(self, url):
@@ -112,7 +112,7 @@ class YouTubeDownloaderGUI:
         self.status_text.set("Loading video information...")
         self.download_button.config(state=tk.DISABLED)
         
-        # Start a new thread to fetch video info
+       
         threading.Thread(target=self._fetch_video_info, args=(url,), daemon=True).start()
     
     def _fetch_video_info(self, url):
@@ -123,11 +123,11 @@ class YouTubeDownloaderGUI:
                 
             self.video_info = info
             
-            # Extract available formats
+            
             formats = []
             if 'formats' in info:
                 for fmt in info['formats']:
-                    # Filter out audio-only formats for video selection
+                    
                     if fmt.get('resolution') != 'audio only' and fmt.get('vcodec') != 'none':
                         format_note = fmt.get('format_note', '')
                         resolution = fmt.get('resolution', 'unknown')
@@ -135,7 +135,7 @@ class YouTubeDownloaderGUI:
                         format_id = fmt.get('format_id', '')
                         formats.append(f"{resolution} - {format_note} ({ext}) [ID: {format_id}]")
             
-            # Add audio only options
+            
             audio_formats = []
             for fmt in info.get('formats', []):
                 if fmt.get('vcodec') == 'none' and fmt.get('acodec') != 'none':
@@ -144,7 +144,7 @@ class YouTubeDownloaderGUI:
                     format_id = fmt.get('format_id', '')
                     audio_formats.append(f"Audio: {format_note} ({ext}) [ID: {format_id}]")
             
-            # Sort formats by resolution (approximately)
+            
             def sort_key(fmt):
                 res = fmt.split(' - ')[0]
                 try:
@@ -154,10 +154,10 @@ class YouTubeDownloaderGUI:
             
             formats.sort(key=sort_key, reverse=True)
             
-            # Get best format for default selection
+            
             best_format = "Best quality"
             
-            # Load thumbnail
+           
             thumbnail_url = info.get('thumbnail')
             thumbnail_image = None
             if thumbnail_url:
@@ -165,13 +165,13 @@ class YouTubeDownloaderGUI:
                     response = requests.get(thumbnail_url)
                     img = Image.open(BytesIO(response.content))
                     
-                    # Resize thumbnail to fit in the GUI
+                    
                     img.thumbnail((300, 200))
                     thumbnail_image = ImageTk.PhotoImage(img)
                 except Exception as e:
                     print(f"Error loading thumbnail: {e}")
             
-            # Update UI in the main thread
+           
             self.root.after(0, lambda: self._update_ui_with_info(info, formats, audio_formats, best_format, thumbnail_image))
             
         except Exception as e:
@@ -179,7 +179,7 @@ class YouTubeDownloaderGUI:
     
     def _update_ui_with_info(self, info, formats, audio_formats, best_format, thumbnail_image):
         """Update the UI with video information (called in main thread)."""
-        # Update info text
+        
         self.info_text.config(state=tk.NORMAL)
         self.info_text.delete(1.0, tk.END)
         
@@ -208,14 +208,14 @@ class YouTubeDownloaderGUI:
         self.info_text.insert(tk.END, info_text)
         self.info_text.config(state=tk.DISABLED)
         
-        # Update thumbnail
+        
         if thumbnail_image:
-            self.thumbnail_image = thumbnail_image  # Keep a reference
+            self.thumbnail_image = thumbnail_image 
             self.thumbnail_label.config(image=thumbnail_image, text="")
         else:
             self.thumbnail_label.config(text="No thumbnail available", image="")
         
-        # Update format combobox
+        
         all_formats = ["Best quality"] + formats
         if self.audio_only_var.get():
             all_formats = ["Best audio quality"] + audio_formats
@@ -223,7 +223,7 @@ class YouTubeDownloaderGUI:
         self.format_combobox['values'] = all_formats
         self.format_combobox.current(0)
         
-        # Enable download button
+       
         self.download_button.config(state=tk.NORMAL)
         self.status_text.set("Ready to download")
     
@@ -232,7 +232,7 @@ class YouTubeDownloaderGUI:
         if not self.video_info:
             return
             
-        # Re-trigger format list update
+        
         self._fetch_video_info(self.url_var.get().strip())
     
     def browse_output_dir(self):
@@ -254,18 +254,18 @@ class YouTubeDownloaderGUI:
             messagebox.showwarning("Error", "Invalid output directory.")
             return
         
-        # Configure format selection based on combobox selection
+        
         format_id = None
         if selected_format != "Best quality" and selected_format != "Best audio quality":
-            # Extract format ID from selection string
+            
             format_id = selected_format.split("ID: ")[1].rstrip("]")
         
-        # Disable UI elements during download
+        
         self.download_button.config(state=tk.DISABLED)
         self.status_text.set("Preparing download...")
         self.progress_bar['value'] = 0
         
-        # Start download in a separate thread
+        
         threading.Thread(
             target=self._download_thread, 
             args=(self.url_var.get(), output_dir, self.audio_only_var.get(), format_id),
@@ -275,7 +275,7 @@ class YouTubeDownloaderGUI:
     def _download_thread(self, url, output_dir, audio_only, format_id):
         """Download video in a separate thread."""
         try:
-            # Configure yt-dlp options
+           
             ydl_opts = {
                 'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
                 'noplaylist': True,
@@ -285,7 +285,7 @@ class YouTubeDownloaderGUI:
                 'socket_timeout': 30,
             }
             
-            # Configure format
+           
             if audio_only:
                 ydl_opts.update({
                     'format': format_id if format_id else 'bestaudio/best',
@@ -301,13 +301,13 @@ class YouTubeDownloaderGUI:
                 else:
                     ydl_opts['format'] = 'bestvideo+bestaudio/best'
             
-            # Start download
+           
             self.root.after(0, lambda: self.status_text.set("Downloading..."))
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([url])
             
-            # Download completed
+            
             self.root.after(0, lambda: [
                 self.status_text.set("Download completed!"),
                 self.download_button.config(state=tk.NORMAL),
@@ -350,7 +350,7 @@ class YouTubeDownloaderGUI:
             ])
 
 if __name__ == "__main__":
-    # Check for required libraries
+    
     missing_libs = []
     try:
         import yt_dlp
@@ -367,7 +367,7 @@ if __name__ == "__main__":
         print(f"pip install {' '.join(missing_libs)}")
         sys.exit(1)
     
-    # Start the application
+    
     root = tk.Tk()
     app = YouTubeDownloaderGUI(root)
     root.mainloop()

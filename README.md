@@ -34,5 +34,9 @@ python ytdownloader.py
 - `requests`
 - `tkinter` (included with Python standard library)
 
+## Screenshot
+
+![Screenshot 2025-02-26 160304](https://github.com/user-attachments/assets/8a90d9ec-031b-4af1-88a5-94b39d071534)
+
 ## License
 This project is licensed under the MIT License.
